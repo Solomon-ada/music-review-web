@@ -7,6 +7,8 @@ import { requireAdmin } from '../../../lib/admin-guard';
 
 export default function AdminMusicPage() {
   const router = useRouter();
+  const [editing, setEditing] = useState<any | null>(null);
+
   const [music, setMusic] = useState<any[]>([]);
   const [form, setForm] = useState({
     title: '',
@@ -138,36 +140,140 @@ export default function AdminMusicPage() {
                   {m.singer} · {m.author}
                 </p>
 
-                <div className="flex justify-between items-center pt-3">
-                  <a
-                    href={`/music/${m.id}`}
-                    target="_blank"
-                    className="text-indigo-600 dark:text-indigo-400 text-sm hover:underline"
-                  >
-                    View
-                  </a>
 
-                  <button
-                    onClick={() => deleteMusic(m.id)}
-                    className="text-red-500 hover:text-red-600 text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
+             <div className="flex justify-between items-center pt-3">
+              <a
+                href={`/music/${m.id}`}
+                target="_blank"
+                className="text-indigo-600 dark:text-indigo-400 text-sm hover:underline"
+              >
+                View
+              </a>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setEditing(m)}
+                  className="text-indigo-600 hover:underline text-sm"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => deleteMusic(m.id)}
+                  className="text-red-500 hover:text-red-600 text-sm"
+                >
+                  Delete
+                </button>
               </div>
-            </div>
-          ))}
-        </div>
+              {editing && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
 
-        {music.length === 0 && (
-          <p className="text-gray-500 mt-4">
-            No music found.
-          </p>
-        )}
+        const updated = await apiFetch(
+          `/music/${editing.id}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify({
+              title: editing.title,
+              author: editing.author,
+              singer: editing.singer,
+              image: editing.image,
+              categoryId: Number(editing.categoryId),
+            }),
+          },
+        );
+
+        setMusic((prev) =>
+          prev.map((m) =>
+            m.id === updated.id ? updated : m,
+          ),
+        );
+
+        setEditing(null);
+      }}
+      className="bg-white dark:bg-gray-900 p-6 rounded-2xl w-full max-w-md space-y-4"
+    >
+      <h2 className="text-xl font-bold">
+        ✏️ Edit Music
+      </h2>
+
+      <Input
+        placeholder="Title"
+        value={editing.title || ''}
+        onChange={(v) =>
+          setEditing({ ...editing, title: v })
+        }
+      />
+      <Input
+        placeholder="Author"
+        value={editing.author || ''}
+        onChange={(v) =>
+          setEditing({ ...editing, author: v })
+        }
+      />
+      <Input
+        placeholder="Singer"
+        value={editing.singer || ''}
+        onChange={(v) =>
+          setEditing({ ...editing, singer: v })
+        }
+      />
+      <Input
+        placeholder="Image URL"
+        value={editing.image || ''}
+        onChange={(v) =>
+          setEditing({ ...editing, image: v })
+        }
+      />
+      <Input
+        placeholder="Category ID"
+        value={String(editing.categoryId || '')}
+        onChange={(v) =>
+          setEditing({
+            ...editing,
+            categoryId: v,
+          })
+        }
+      />
+
+      <div className="flex justify-end gap-3 pt-4">
+        <button
+          type="button"
+          onClick={() => setEditing(null)}
+          className="px-4 py-2 rounded bg-gray-300 dark:bg-gray-700"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          className="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+        >
+          Save Changes
+        </button>
       </div>
-    </div>
-  );
-}
+    </form>
+  </div>
+)}
+
+            </div>
+
+                 </div>
+                   </div>
+                 ))}
+                 </div>
+
+                    {music.length === 0 && (
+                      <p className="text-gray-500 mt-4">
+                        No music found.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            }
 
 /* ---------- SMALL REUSABLE INPUT ---------- */
 
@@ -194,76 +300,3 @@ function Input({
 
 
 
-// 'use client';
-
-// import { useEffect, useState } from 'react';
-// import { useRouter } from 'next/navigation';
-// import { apiFetch } from '../../../lib/api';
-// import { requireAdmin } from '../../../lib/admin-guard';
-
-// export default function AdminMusicPage() {
-//   const router = useRouter();
-//   const [music, setMusic] = useState<any[]>([]);
-//   const [form, setForm] = useState({
-//     title: '',
-//     author: '',
-//     singer: '',
-//     image: '',
-//     categoryId: '',
-//   });
-
-//   useEffect(() => {
-//     requireAdmin(router);
-//     apiFetch('/music').then(setMusic);
-//   }, []);
-
-//   async function addMusic(e: React.FormEvent) {
-//     e.preventDefault();
-
-//     const newMusic = await apiFetch('/music', {
-//       method: 'POST',
-//       body: JSON.stringify({
-//         ...form,
-//         categoryId: Number(form.categoryId),
-//       }),
-//     });
-
-//     setMusic((prev) => [...prev, newMusic]);
-//   }
-
-//   async function deleteMusic(id: number) {
-//     await apiFetch(`/music/${id}`, { method: 'DELETE' });
-//     setMusic((prev) => prev.filter((m) => m.id !== id));
-//   }
-
-//   return (
-//     <div style={{ padding: 24 }}>
-//       <h2>Music</h2>
-
-//       <form onSubmit={addMusic}>
-//         {Object.keys(form).map((key) => (
-//           <input
-//             key={key}
-//             placeholder={key}
-//             value={(form as any)[key]}
-//             onChange={(e) =>
-//               setForm({ ...form, [key]: e.target.value })
-//             }
-//           />
-//         ))}
-//         <button>Add music</button>
-//       </form>
-
-//       <ul>
-//         {music.map((m) => (
-//           <li key={m.id}>
-//             {m.title}
-//             <button onClick={() => deleteMusic(m.id)}>
-//               ❌
-//             </button>
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// }
