@@ -1,3 +1,6 @@
+
+
+
 const API_URL = 'http://localhost:3002';
 
 export async function apiFetch(

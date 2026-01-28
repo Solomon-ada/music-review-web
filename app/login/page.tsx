@@ -30,24 +30,30 @@ export default function LoginPage() {
     <div style={{ padding: 24 }}>
       <h1>Login</h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <br /><br />
+      <form
+  onSubmit={handleSubmit}
+  className="bg-white p-6 rounded shadow space-y-4 max-w-md"
+>
+  <input
+    className="border p-2 w-full rounded"
+    placeholder="Email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+  />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <br /><br />
+  <input
+    type="password"
+    className="border p-2 w-full rounded"
+    placeholder="Password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+  />
 
-        <button type="submit">Login</button>
-      </form>
+  <button className="bg-black text-white px-4 py-2 rounded">
+    Login
+  </button>
+</form>
+
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>

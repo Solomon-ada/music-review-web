@@ -48,26 +48,29 @@ export default function MusicDetailPage() {
 
   return (
     <div style={{ padding: 24 }}>
-      <h1>{music.title}</h1>
-      <p>
-        <strong>{music.singer}</strong> · {music.author}
+      <h1 className="text-3xl font-bold">{music.title}</h1>
+<p className="text-gray-600 mb-4">
+  {music.singer} · {music.author}
+</p>
+
+<hr className="my-6" />
+
+<h2 className="text-xl font-semibold mb-2">Reviews</h2>
+
+<ul className="space-y-3">
+  {reviews.map((r) => (
+    <li
+      key={r.id}
+      className="bg-white p-3 rounded shadow-sm"
+    >
+      <p className="font-medium">
+        {r.user.name} ⭐ {r.rating}
       </p>
+      <p className="text-gray-700">{r.comment}</p>
+    </li>
+  ))}
+</ul>
 
-      <hr />
-
-      <h2>Reviews</h2>
-
-      {reviews.length === 0 && <p>No reviews yet.</p>}
-
-      <ul>
-        {reviews.map((r) => (
-          <li key={r.id}>
-            <strong>{r.user.name}</strong> — ⭐ {r.rating}
-            <br />
-            {r.comment}
-          </li>
-        ))}
-      </ul>
 
       <hr />
 
